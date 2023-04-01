@@ -1,0 +1,83 @@
+name: Prai Action
+
+on:
+  pull_request:
+
+jobs:
+  prai:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+          fetch-depth: 0
+
+      - name: Checkout head branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          path: head
+          fetch-depth: 0
+
+      - name: Fetch HEAD for both branches
+        run: |
+          ls -al
+          cd base
+          ls -al
+          git fetch origin ${{ github.base_ref }}:HEAD
+          cd ../head
+          git fetch origin ${{ github.head_ref }}:HEAD
+
+      - name: Get git diff
+        run: |
+          echo 'github.base_ref'
+          echo ${{ github.base_ref }}
+          echo 'github.head_ref' 
+          echo ${{ github.head_ref }}
+          cd base
+          git diff main > pr.diff
+          cat pr.diff
+
+      - name: Upload git diff as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr-diff
+          path: base/pr.diff
+
+      - name: Install httpie and jq
+        run: sudo apt-get install httpie jq
+
+      - name: Generate PR message using Chat API
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TEMPLATE_PR: ${{ secrets.TEMPLATE_PR }}
+        run: |
+          DIFF=$(cat base/pr.diff)
+          SYSTEM_MESSAGE="You are a pull request message creator, you will receive a git diff and will create a PR message."
+          if [ -n "$TEMPLATE_PR" ]; then
+            SYSTEM_MESSAGE="${SYSTEM_MESSAGE} Use the following template: ${TEMPLATE_PR}"
+          fi
+          PR_MESSAGE=$(http --json POST https://api.openai.com/v1/chat/completions \
+            "Content-Type:application/json" \
+            "Authorization:Bearer $OPENAI_API_KEY" \
+            model="gpt-4" \
+            messages:='[{"role": "system", "content": "'"${SYSTEM_MESSAGE//\"/\\\"}"'"}, {"role": "user", "content": "'"${DIFF//\"/\\\"}"'"}]' \
+            | jq -r '.choices[0].message.content')
+          echo $PR_MESSAGE
+          echo PR_MESSAGE
+          echo "PR_MESSAGE=$PR_MESSAGE" >> $GITHUB_ENV
+
+      - name: Update PR message
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_MESSAGE="${PR_MESSAGE//$'\n'/\\n}"
+          PR_MESSAGE="${PR_MESSAGE//\"/\\\"}"
+          PR_API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
+          curl -s -X PATCH "$PR_API_URL" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"body\": \"${PR_MESSAGE}\"}"
