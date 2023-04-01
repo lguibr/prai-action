@@ -35,7 +35,10 @@ jobs:
       - name: Get git diff
         run: |
           cd head
-          git pull
+          echo ${{ github.head_ref }}
+          echo ${{ github.base_ref }}
+          git pull ${{ github.head_ref }}
+          git pull ${{ github.base_ref }}
           git diff --color --patch --unified=3 --no-prefix ${{ github.base_ref }}:HEAD > pr.diff
           cat pr.diff
 
