@@ -34,6 +34,7 @@ jobs:
 
       - name: Get git diff
         run: |
+          ls -al
           git fetch
           git diff --color --patch --unified=3 --no-prefix ${{ github.base_ref }} > pr.diff
           cat pr.diff
