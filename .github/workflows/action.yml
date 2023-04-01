@@ -68,13 +68,13 @@ jobs:
             | jq -r '.choices[0].message.content')
           echo "PR_MESSAGE=$PR_MESSAGE" >> $GITHUB_ENV
 
-      - name: Update PR message
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PR_MESSAGE="${PR_MESSAGE//$'\n'/\\n}"
-          PR_MESSAGE="${PR_MESSAGE//\"/\\\"}"
-          PR_API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
-          http PATCH "$PR_API_URL" \
-            "Authorization:token $GITHUB_TOKEN" \
-            body="\"${PR_MESSAGE}\""
+        - name: Update PR message
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            PR_MESSAGE="${PR_MESSAGE//$'\n'/\\n}"
+            PR_MESSAGE="${PR_MESSAGE//\"/\\\"}"
+            PR_API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
+            http --json PATCH "$PR_API_URL" \
+              "Authorization:token $GITHUB_TOKEN" \
+              body="\"${PR_MESSAGE}\""
