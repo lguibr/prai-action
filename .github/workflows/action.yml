@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  get_diff:
+  prai:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +24,12 @@ jobs:
 
       - name: Fetch HEAD for both branches
         run: |
+          ls -al
           cd base
+          ls -al
           git fetch origin ${{ github.base_ref }}:HEAD
           cd ../head
+          ls -al
           git fetch origin ${{ github.head_ref }}:HEAD
 
       - name: Get git diff
