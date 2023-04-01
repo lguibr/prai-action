@@ -63,9 +63,11 @@ jobs:
           PR_MESSAGE=$(http --json POST https://api.openai.com/v1/chat/completions \
             "Content-Type:application/json" \
             "Authorization:Bearer $OPENAI_API_KEY" \
-            model="text-davinci-002" \
+            model="gpt-4" \
             messages:='[{"role": "system", "content": "'"${SYSTEM_MESSAGE//\"/\\\"}"'"}, {"role": "user", "content": "'"${DIFF//\"/\\\"}"'"}]' \
             | jq -r '.choices[0].message.content')
+          echo $PR_MESSAGE
+          echo PR_MESSAGE
           echo "PR_MESSAGE=$PR_MESSAGE" >> $GITHUB_ENV
 
         - name: Update PR message
