@@ -75,6 +75,6 @@ jobs:
           PR_MESSAGE="${PR_MESSAGE//$'\n'/\\n}"
           PR_MESSAGE="${PR_MESSAGE//\"/\\\"}"
           PR_API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
-          http PATCH "$PR_API_URL" \
+          http --json PATCH "$PR_API_URL" \
             "Authorization:token $GITHUB_TOKEN" \
             body="\"${PR_MESSAGE}\""
