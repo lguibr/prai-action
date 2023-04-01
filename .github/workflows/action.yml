@@ -30,11 +30,12 @@ jobs:
           git fetch origin ${{ github.base_ref }}:HEAD
           cd ../head
           ls -al
-          git fetch origin ${{ github.head_ref }}:HEAD
+          git fetch
 
       - name: Get git diff
         run: |
-          git diff --color --patch --unified=3 --no-prefix HEAD ../head > pr.diff
+          git fetch
+          git diff --color --patch --unified=3 --no-prefix ${{ github.base_ref }} > pr.diff
           cat pr.diff
 
       - name: Upload git diff as artifact
