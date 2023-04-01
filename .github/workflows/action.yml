@@ -36,7 +36,7 @@ jobs:
         run: |
           cd head
           echo ${{ github.base_ref }}
-          git pull ${{ github.base_ref }}
+          git fetch origin ${{ github.base_ref }}
           git diff --color --patch --unified=3 --no-prefix ${{ github.base_ref }}:HEAD > pr.diff
           cat pr.diff
 
