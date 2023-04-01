@@ -33,12 +33,12 @@ jobs:
 
       - name: Get git diff
         run: |
-          echo '${{ github.base_ref }}:HEAD'
-          echo ${{ github.base_ref }}:HEAD
-          echo '${{ github.head_ref }}:HEAD'
-          echo ${{ github.head_ref }}:HEAD
-          cd head
-          git diff --color --patch --unified=3 --no-prefix ../base > pr.diff
+          echo 'github.base_ref'
+          echo ${{ github.base_ref }}
+          echo 'github.head_ref' 
+          echo ${{ github.head_ref }}
+          cd base
+          git diff --color --patch --unified=3 --no-prefix HEAD../head > pr.diff
           cat pr.diff
 
       - name: Upload git diff as artifact
