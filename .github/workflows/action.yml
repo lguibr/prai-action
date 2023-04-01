@@ -22,11 +22,12 @@ jobs:
           path: head
           fetch-depth: 0
 
-      - name: Checkout head branch
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.head_ref }}
-          path: head
+      - name: Fetch HEAD for both branches
+        run: |
+          cd base
+          git fetch origin ${{ github.base_ref }}:HEAD
+          cd ../head
+          git fetch origin ${{ github.head_ref }}:HEAD
 
       - name: Get git diff
         run: |
