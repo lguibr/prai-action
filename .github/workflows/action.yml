@@ -22,7 +22,6 @@ jobs:
 
       - name: Get git diff
         run: |
-          cd base
           git diff --color --patch --unified=3 --no-prefix HEAD ../head > pr.diff
           cat pr.diff
 
