@@ -13,6 +13,14 @@ jobs:
         with:
           ref: ${{ github.base_ref }}
           path: base
+          fetch-depth: 0
+
+      - name: Checkout head branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          path: head
+          fetch-depth: 0
 
       - name: Checkout head branch
         uses: actions/checkout@v2
